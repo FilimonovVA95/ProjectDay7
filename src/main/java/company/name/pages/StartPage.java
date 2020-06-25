@@ -9,7 +9,11 @@ import org.openqa.selenium.support.PageFactory;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
 
-public class StartPage {
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.Properties;
+
+public class StartPage<inputStream, inputStream1> {
 
     // элементы стартовой страницы
 
@@ -82,31 +86,47 @@ public class StartPage {
     private WebElement stringPassword;      //строчка с паролем
 
 
+    public StartPage() {
+        PageFactory.initElements(DriverManager.getDriver(), this);
 
-    public StartPage() {PageFactory.initElements(DriverManager.getDriver(), this); }
-
-    WebDriver driver = DriverManager.getDriver();
-
-
-    public void open() {
-        driver.get("http://217.14.197.81:82/");
+        InputStream inputStream = DriverManager.class.getClassLoader().getResourceAsStream("config.properties");
+        Properties properties = new Properties();
+        try {
+            properties.load(inputStream);
+        } catch (IOException e) {
+            throw new RuntimeException((e));
+        }
+        testStand = properties.getProperty("test.stand");
+        oneOffEMailSite = properties.getProperty("one.off.email.site");
     }
 
-    public void registrationClient(String youName, String companyName, String phone) {
+    WebDriver driver = DriverManager.getDriver();
+    String testStand;
+    String oneOffEMailSite;
+
+    public void open() {
+        driver.get(testStand);
+    }
+
+    public void registrationClient(String youName, String companyName, String phoneNumber) {
         openPopUp();
         startRegistrationButton.click();
         startRegistrationClientButton.click();
-
-
-
+        registrationEMailField.sendKeys(getOneOffEmail());
+        registrationNameField.sendKeys(youName);
+        registrationCompanyField.sendKeys(companyName);
+        registrationPhoneNumberField.sendKeys(phoneNumber);
+        RegistrationButton.click();
     }
 
-    public void registrationClient(String youName, String companyName, String phone, String position) {
-
+    public void registrationClient(String youName, String companyName, String phoneNumber, String position) {
+        registrationPositionField.sendKeys(position);
+        registrationClient(youName,companyName,phoneNumber);
     }
 
-    public void registrationClient(String youName, String companyName, String phone, String position, String youSite) {
-
+    public void registrationClient(String youName, String companyName, String phoneNumber, String position, String youSite) {
+        registrationSiteField.sendKeys(youSite);
+        registrationClient(youName,companyName,phoneNumber,position);
     }
 
     private void openPopUp() {
@@ -117,6 +137,13 @@ public class StartPage {
 
         new WebDriverWait(driver, 5).until(ExpectedConditions.
                 presenceOfElementLocated(modalContentLocator));
+    }
+
+    private String getOneOffEmail() {
+        driver.get(oneOffEMailSite);
+        String oneOffEmail = mailFoild.getText();
+        driver.get(testStand);
+        return oneOffEmail;
     }
 
 }

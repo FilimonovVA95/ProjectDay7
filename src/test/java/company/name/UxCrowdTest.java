@@ -5,9 +5,6 @@ import org.junit.jupiter.api.Test;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 
-import java.util.ArrayList;
-import java.util.List;
-
 public class UxCrowdTest {
     private int timeWait = 5;
 
@@ -24,7 +21,7 @@ public class UxCrowdTest {
         StartPage startPage = new StartPage();
 
         startPage.open();
-        startPage.registrationClient("235jk25");
+
 
 
 
