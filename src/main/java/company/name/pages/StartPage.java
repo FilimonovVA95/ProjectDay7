@@ -13,7 +13,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.Properties;
 
-public class StartPage<inputStream, inputStream1> {
+public class StartPage {
 
     // элементы стартовой страницы
 
@@ -66,26 +66,43 @@ public class StartPage<inputStream, inputStream1> {
     private WebElement submitButton;        //кнопка для входа
 
     @FindBy(css = "button.lk-enter-btn:nth-child(5)")
+    private WebElement startPasswordRecoveryButton;      //кнопка для начала восстановления пароля
+
+    @FindBy(id = "email_valid")
+    private WebElement emailRecoverField;      //поле для ввода почты на восстановление пароля
+
+    @FindBy(css = ".lk-enter-btn:nth-child(5)")
     private WebElement passwordRecoveryButton;      //кнопка для восстановления пароля
 
     @FindBy(id = "logout")
     private WebElement logout;      //кнопка выхода после успешного входа
 
+    @FindBy(id = "logout")          //локатор на кнопку выхода
+    private By logoutLocator;
+
     // элементы одноразовой почты
 
     @FindBy(id = "mail")
-    private WebElement mailFoild;       //поле с одноразовой почтой
+    private WebElement mailField;       //поле с одноразовой почтой
 
     @FindBy(id = "click-to-refresh")
     private WebElement refreshButton;       //кнопка для обновления почтового ящика
 
     @FindBy(css = ".inbox-dataList li:nth-child(2) .hidden-xs-sm")
-    private WebElement emailFromSite;       //письмо от сайта
+    private WebElement emailFromSite;       //последнее письмо в ящике
+
+    @FindBy(css = ".inbox-dataList li:nth-child(2) .hidden-xs-sm")
+    private By emailFromSiteLocator;        //локатор последнего письма в ящике
 
     @FindBy(xpath = "//body//p[5]")
     private WebElement stringPassword;      //строчка с паролем
 
+    @FindBy(id = "click-to-delete")
+    private WebElement deleteButton;      //кнопка удаления текущего адреса
 
+    /**
+     * Конструктор, считываем из файла конфигурации сайты тестового стенда и получаем все веб-элементы.
+     */
     public StartPage() {
         PageFactory.initElements(DriverManager.getDriver(), this);
 
@@ -97,53 +114,159 @@ public class StartPage<inputStream, inputStream1> {
             throw new RuntimeException((e));
         }
         testStand = properties.getProperty("test.stand");
-        oneOffEMailSite = properties.getProperty("one.off.email.site");
     }
 
     WebDriver driver = DriverManager.getDriver();
     String testStand;
-    String oneOffEMailSite;
+    String oneOffEMailSite = "https://temp-mail.org/ru/";
+    int timeWait = 5;
 
+    /**
+     * открыть тестовый стенд
+     */
     public void open() {
         driver.get(testStand);
     }
 
+    /**
+     * зарегестрировать клиента с указание имени, названия компании и номера телефона
+     * @param youName имя клиента
+     * @param companyName название компании
+     * @param phoneNumber номер телефона
+     */
     public void registrationClient(String youName, String companyName, String phoneNumber) {
+        String email = getNewOneOffEmail();
         openPopUp();
         startRegistrationButton.click();
         startRegistrationClientButton.click();
-        registrationEMailField.sendKeys(getOneOffEmail());
+        registrationEMailField.sendKeys(email);
         registrationNameField.sendKeys(youName);
         registrationCompanyField.sendKeys(companyName);
         registrationPhoneNumberField.sendKeys(phoneNumber);
         RegistrationButton.click();
     }
 
+    /**
+     * зарегестрировать клиента с указание имени, названия компании, должности и номера телефона
+     * @param youName имя клиента
+     * @param companyName название компании
+     * @param phoneNumber номер телефона
+     * @param position должность
+     */
     public void registrationClient(String youName, String companyName, String phoneNumber, String position) {
         registrationPositionField.sendKeys(position);
         registrationClient(youName,companyName,phoneNumber);
     }
 
+    /**
+     * зарегестрировать клиента с указание имени, названия компании, должности, веб-сайта и номера телефона
+     * @param youName имя клиента
+     * @param companyName название компании
+     * @param phoneNumber номер телефона
+     * @param position должность
+     * @param youSite веб-сайт
+     */
     public void registrationClient(String youName, String companyName, String phoneNumber, String position, String youSite) {
         registrationSiteField.sendKeys(youSite);
         registrationClient(youName,companyName,phoneNumber,position);
     }
 
+    /**
+     * регистрация тестера
+     */
+    public void registrationTester() {
+        String email = getOneOffEmail();;
+        openPopUp();
+        startRegistrationButton.click();
+        startRegistrationTesterButton.click();
+        registrationEMailField.sendKeys(email);
+        RegistrationButton.click();
+    }
+
+    /**
+     * вход на сайт
+     */
+    public void logIn() {
+        String password = getPassword();
+        String email = getOneOffEmail();
+        openPopUp();
+        loginFiled.sendKeys(email);
+        passwordField.sendKeys(password);
+        submitButton.click();
+
+        new WebDriverWait(driver, timeWait).withMessage("Log in exception")
+                .until(ExpectedConditions.presenceOfElementLocated(logoutLocator));
+
+    }
+
+    /**
+     * выйти из личного кабинета
+     */
+    public void logout () {
+        logout.click();
+    }
+
+
+    /**
+     * открыть окошко для входа, регистрации и тд.
+     */
     private void openPopUp() {
         if (loginButton.isDisplayed())
             loginButton.click();
         else
             miniLoginButton.click();
 
-        new WebDriverWait(driver, 5).until(ExpectedConditions.
-                presenceOfElementLocated(modalContentLocator));
+        new WebDriverWait(driver, timeWait).withMessage("Open popUp exception")
+                .until(ExpectedConditions.presenceOfElementLocated(modalContentLocator));
     }
 
-    private String getOneOffEmail() {
+    /**
+     * вернуть одноразовый email, перед этим проверив, что раньше эта почта не использовалась
+     * @return возвращает строку с новым email
+     */
+    private String getNewOneOffEmail() {     //возвращает нам одноразовый ящик
+        if (emailFromSite.isDisplayed()) {     //проверяем, использовался ли этот ящик, если использовался, то обновить ящик
+            deleteButton.click();
+            new WebDriverWait(driver, timeWait).withMessage("Get new EMail Exception")
+                    .until(ExpectedConditions.textToBePresentInElement(mailField,"@"));
+        }
+        return getOneOffEmail();
+    }
+
+    /**
+     * возвращает email
+     * @return возвращает строку с email
+     */
+    private String getOneOffEmail() {     //возвращает нам одноразовый ящик
         driver.get(oneOffEMailSite);
-        String oneOffEmail = mailFoild.getText();
+        String oneOffEmail = mailField.getText();
         driver.get(testStand);
         return oneOffEmail;
+    }
+
+    /**
+     * Ожидает прихода письма в течении минуты. Возвращает строку с паролем от текущего ящика.
+     * @return
+     */
+    private String getPassword() {    //возвращает пароль
+        driver.get(oneOffEMailSite);
+        refreshButton.click();
+        String password;
+
+        new WebDriverWait(driver, 60).withMessage("The letter has not arrived exception")
+                .until(ExpectedConditions.presenceOfElementLocated(emailFromSiteLocator));
+
+        emailFromSite.click();
+
+        new WebDriverWait(driver, timeWait).withMessage("password was not found in the email exception")
+                .until(ExpectedConditions.textToBePresentInElement(stringPassword,"Пароль"));
+
+        String[] stringWithPassword = stringPassword.getText().split(" ");
+        password = stringWithPassword[1];
+
+        driver.get(testStand);
+
+        return password;
     }
 
 }
