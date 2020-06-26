@@ -20,13 +20,16 @@ public class StartPage {
     @FindBy(id = "header-lk-button")   //кнопка открытия окна входа
     private WebElement loginButton;
 
+    @FindBy(css = ".nl-header-desktop li:nth-child(5)")   //локатор что прогрузилась страница
+    private By loginButtonLocator;
+
     @FindBy(id = "mobileAvatar")        //кнопка открытия окна входа в мобильном режиме
     private WebElement miniLoginButton;
 
     @FindBy(id = "modal-content")       //локатор на окошко входа
     private By modalContentLocator;
 
-    @FindBy(css = ".switch-login-type:nth-child(2)")
+    @FindBy(css = "[for=registrationLk]")
     private WebElement startRegistrationButton;     //кнопка регистрации
 
     @FindBy(css = ".button-wrapper:nth-child(1) button")
@@ -85,6 +88,9 @@ public class StartPage {
     @FindBy(id = "mail")
     private WebElement mailField;       //поле с одноразовой почтой
 
+    @FindBy(id = "mail")
+    private By mailFieldLocator;       //локатор поля с одноразовой почтой
+
     @FindBy(id = "click-to-refresh")
     private WebElement refreshButton;       //кнопка для обновления почтового ящика
 
@@ -116,10 +122,10 @@ public class StartPage {
         testStand = properties.getProperty("test.stand");
     }
 
-    WebDriver driver = DriverManager.getDriver();
-    String testStand;
-    String oneOffEMailSite = "https://temp-mail.org/ru/";
-    int timeWait = 5;
+    private WebDriver driver = DriverManager.getDriver();
+    private String testStand;
+    private String oneOffEMailSite = "https://temp-mail.org/ru/";
+    private int timeWaitEmail = 60;    //сколько секунд будем ждать появление письма в ящике
 
     /**
      * открыть тестовый стенд
@@ -175,7 +181,7 @@ public class StartPage {
      * регистрация тестера
      */
     public void registrationTester() {
-        String email = getOneOffEmail();;
+        String email = getNewOneOffEmail();;
         openPopUp();
         startRegistrationButton.click();
         startRegistrationTesterButton.click();
@@ -194,8 +200,8 @@ public class StartPage {
         passwordField.sendKeys(password);
         submitButton.click();
 
-        new WebDriverWait(driver, timeWait).withMessage("Log in exception")
-                .until(ExpectedConditions.presenceOfElementLocated(logoutLocator));
+     //   new WebDriverWait(driver, timeWait).withMessage("Log in exception")
+      //          .until(ExpectedConditions.presenceOfElementLocated(logoutLocator));
 
     }
 
@@ -216,8 +222,8 @@ public class StartPage {
         else
             miniLoginButton.click();
 
-        new WebDriverWait(driver, timeWait).withMessage("Open popUp exception")
-                .until(ExpectedConditions.presenceOfElementLocated(modalContentLocator));
+     //   new WebDriverWait(driver, timeWait).withMessage("Open popUp exception")
+     //           .until(ExpectedConditions.presenceOfElementLocated(modalContentLocator));
     }
 
     /**
@@ -225,11 +231,9 @@ public class StartPage {
      * @return возвращает строку с новым email
      */
     private String getNewOneOffEmail() {     //возвращает нам одноразовый ящик
-        if (emailFromSite.isDisplayed()) {     //проверяем, использовался ли этот ящик, если использовался, то обновить ящик
-            deleteButton.click();
-            new WebDriverWait(driver, timeWait).withMessage("Get new EMail Exception")
-                    .until(ExpectedConditions.textToBePresentInElement(mailField,"@"));
-        }
+        driver.get(oneOffEMailSite);
+        deleteButton.click();
+
         return getOneOffEmail();
     }
 
@@ -239,8 +243,16 @@ public class StartPage {
      */
     private String getOneOffEmail() {     //возвращает нам одноразовый ящик
         driver.get(oneOffEMailSite);
+
+      //  new WebDriverWait(driver, timeWait).withMessage("Get new EMail Exception")
+      //          .until(ExpectedConditions.not(ExpectedConditions.textToBePresentInElement(mailField,"Загрузка")));
+
         String oneOffEmail = mailField.getText();
         driver.get(testStand);
+
+     //   new WebDriverWait(driver, timeWait)
+       //         .until(ExpectedConditions.presenceOfElementLocated(By.cssSelector(".nl-header-desktop li:nth-child(5)")));
+
         return oneOffEmail;
     }
 
@@ -253,13 +265,13 @@ public class StartPage {
         refreshButton.click();
         String password;
 
-        new WebDriverWait(driver, 60).withMessage("The letter has not arrived exception")
+        new WebDriverWait(driver, timeWaitEmail).withMessage("The letter has not arrived exception")
                 .until(ExpectedConditions.presenceOfElementLocated(emailFromSiteLocator));
 
         emailFromSite.click();
 
-        new WebDriverWait(driver, timeWait).withMessage("password was not found in the email exception")
-                .until(ExpectedConditions.textToBePresentInElement(stringPassword,"Пароль"));
+       // new WebDriverWait(driver, timeWait).withMessage("password was not found in the email exception")
+        //        .until(ExpectedConditions.textToBePresentInElement(stringPassword,"Пароль"));
 
         String[] stringWithPassword = stringPassword.getText().split(" ");
         password = stringWithPassword[1];

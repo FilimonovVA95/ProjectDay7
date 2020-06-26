@@ -9,6 +9,7 @@ import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Properties;
+import java.util.concurrent.TimeUnit;
 
 public class DriverManager {
     private static WebDriver driver;
@@ -26,15 +27,17 @@ public class DriverManager {
             throw new RuntimeException((e));
         }
         String hubUrlString = properties.getProperty("selenium.hub.url");
+        String browserName = properties.getProperty("selenium.browser.name");
+        int globalTimeWait = Integer.parseInt(properties.getProperty("global.time.wait.second"));
         URL hubUrl;
         try {hubUrl= new URL(hubUrlString); }
         catch (MalformedURLException e) {throw  new RuntimeException(e); }
 
-        String browserName = properties.getProperty("selenium.browser.name");
-
         DesiredCapabilities capabilities = new DesiredCapabilities();
         capabilities.setCapability("browserName", browserName);
         driver = new RemoteWebDriver(hubUrl, capabilities);
+        driver.manage().window().maximize();
+        driver.manage().timeouts().implicitlyWait(globalTimeWait, TimeUnit.SECONDS);
 
         return driver;
     }

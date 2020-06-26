@@ -8,14 +8,16 @@ public class UxCrowdTest {
     @Test
     public void firstTest() {
 
-    //    WebDriver driver = DriverManager.getDriver();
+   //     WebDriver driver = DriverManager.getDriver();
 
         StartPage startPage = new StartPage();
 
         startPage.open();
         startPage.registrationTester();
-        startPage.logIn();
-        startPage.logout();
+ //       startPage.logIn();
+  //      startPage.logout();
+
+    //    driver.quit();
 
     }
 }
