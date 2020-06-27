@@ -88,6 +88,7 @@ public class OneOffEMailPage extends AbstractPage{
 
         new WebDriverWait(driver, timeWaitEmail).withMessage("The letter has not arrived exception")
                 .until((d) -> emailFromSite.isDisplayed());
+
         emailFromSite.click();
 
         new WebDriverWait(driver, timeWait).withMessage("Password was not found in the email exception")
@@ -104,12 +105,13 @@ public class OneOffEMailPage extends AbstractPage{
 
         new WebDriverWait(driver, timeWaitEmail).withMessage("The letter recovery has not arrived exception")
                 .until((d) -> emailFromSite2.isDisplayed());
+
         emailFromSite.click();
 
         new WebDriverWait(driver, timeWait).withMessage("Password was not found in the email exception")
-                .until((d) -> stringRecoveryPassword.getText().contains("пароль"));
+                .until((d) -> stringRecoveryPassword.getText().contains("Новый"));
 
-        String[] stringWithPassword = stringPassword.getText().split(" ");
+        String[] stringWithPassword = stringRecoveryPassword.getText().split(" ");
         driver.get(testStand);
         return stringWithPassword[2];
     }

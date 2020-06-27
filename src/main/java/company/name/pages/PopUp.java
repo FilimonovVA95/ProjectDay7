@@ -42,7 +42,10 @@ public class PopUp extends AbstractPage{
     private WebElement registrationSiteField;       //поле для ввода ссылки на сайт
 
     @FindBy(css = "[href=\"assets/files/tester_conditions.pdf\"]")
-    private WebElement linfToInformation;       //ссылка на условия передачи информации
+    private WebElement linkToInformation;       //ссылка на условия передачи информации
+
+    @FindBy(css = "[type=\"application/pdf\"]")
+    private WebElement checkPDF;       //проверка что открыт pdf
 
     @FindBy(css = "[ng-tr=\"WHE1.WHE13\"]")
     private WebElement startRegistrationTesterButton;       //кнопка регистрации тестера
@@ -119,18 +122,6 @@ public class PopUp extends AbstractPage{
     }
 
     /**
-     * зарегестрировать клиента с указание имени, названия компании, должности и номера телефона
-     * @param youName имя клиента
-     * @param companyName название компании
-     * @param phoneNumber номер телефона
-     * @param position должность
-     */
-    public void registrationClient(String youName, String companyName, String phoneNumber, String position) {
-        registrationPositionField.sendKeys(position);
-        registrationClient(youName,companyName,phoneNumber);
-    }
-
-    /**
      * зарегестрировать клиента с указание имени, названия компании, должности, веб-сайта и номера телефона
      * @param youName имя клиента
      * @param companyName название компании
@@ -139,8 +130,9 @@ public class PopUp extends AbstractPage{
      * @param youSite веб-сайт
      */
     public void registrationClient(String youName, String companyName, String phoneNumber, String position, String youSite) {
+        registrationPositionField.sendKeys(position);
         registrationSiteField.sendKeys(youSite);
-        registrationClient(youName,companyName,phoneNumber,position);
+        registrationClient(youName,companyName,phoneNumber);
     }
 
     /**
@@ -164,9 +156,7 @@ public class PopUp extends AbstractPage{
     /**
      * вход на сайт
      */
-    public void logIn() {
-        String password = OneOffEMailPage.getPassword();
-        String email = OneOffEMailPage.getOneOffEmail();
+    public void logIn(String email, String password) {
         openPopUp();
         loginFiled.sendKeys(email);
         passwordField.sendKeys(password);
@@ -178,6 +168,10 @@ public class PopUp extends AbstractPage{
     public void recoveryPassword() {
         String email = OneOffEMailPage.getOneOffEmail();
         openPopUp();
+
+        new WebDriverWait(driver, timeWait).withMessage("Click recovery register exception")
+                .until((d) -> startPasswordRecoveryButton.isDisplayed());
+
         startPasswordRecoveryButton.click();
         emailRecoverField.sendKeys(email);
         passwordRecoveryButton.click();
@@ -185,13 +179,23 @@ public class PopUp extends AbstractPage{
         assert check.isDisplayed(): "Password recovery exception";
     }
 
-    public void linkToInfomation() {
+    public void linkToInformation() {
         openPopUp();
+
+        new WebDriverWait(driver, timeWait).withMessage("Click register exception")
+                .until((d) -> startRegistrationButton.isDisplayed());
+
         startRegistrationButton.click();
         startRegistrationClientButton.click();
-        linfToInformation.click();
+        linkToInformation.click();
+        try {
+            Thread.sleep(1000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
 
-        assert driver.getCurrentUrl().endsWith("pdf"): "Link to information exception";
+        new WebDriverWait(driver, timeWait).withMessage("Link to information exception")
+                .until((d) -> checkPDF.isEnabled());
     }
 
 
