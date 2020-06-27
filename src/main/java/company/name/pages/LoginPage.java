@@ -5,7 +5,10 @@ import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.FindBy;
 import org.openqa.selenium.support.ui.WebDriverWait;
 
-public class PopUp extends AbstractPage{
+/**
+ * Главная страница, всплывающее окошко авторизации
+ */
+public class LoginPage extends AbstractPage{
 
     @FindBy(id = "header-lk-button")   //кнопка открытия окна входа
     private WebElement loginButton;
@@ -17,7 +20,7 @@ public class PopUp extends AbstractPage{
     private WebElement logout;      //кнопка выхода после успешного входа
 
     /**
-     * регистрация
+     * Регистрация
      */
 
     @FindBy(css = "[ng-tr=\"WHE1.WHE12\"]")
@@ -57,7 +60,7 @@ public class PopUp extends AbstractPage{
     private WebElement check;                  //галочка проверки успешной регистрации
 
     /**
-     * вход и восстановление пароля
+     * Вход и восстановление пароля
      */
 
     @FindBy(id = "login")
@@ -78,8 +81,11 @@ public class PopUp extends AbstractPage{
     @FindBy(css = "[ng-click=\"passwordReset()\"]")
     private WebElement passwordRecoveryButton;      //кнопка для восстановления пароля
 
-
-    public PopUp(WebDriver driver) {
+    /**
+     * Конструктор, считываем из файла конфигурации сайт тестового стенда и получает все веб-элементы
+     * @param driver принимает вебдрайвер, с которым мы работаем
+     */
+    public LoginPage(WebDriver driver) {
         super(driver);
         this.testStand = super.testStand;;
         this.driver = driver;
@@ -90,7 +96,7 @@ public class PopUp extends AbstractPage{
     private int timeWait = 5;
 
     /**
-     * открыть окошко для входа, регистрации и тд.
+     * Открыть окошко для входа, регистрации и тд.
      */
     public void openPopUp() {
         driver.get(testStand);
@@ -98,7 +104,7 @@ public class PopUp extends AbstractPage{
     }
 
     /**
-     * зарегестрировать клиента с указание имени, названия компании и номера телефона
+     * Зарегестрировать клиента с указание имени, названия компании и номера телефона
      * @param youName имя клиента
      * @param companyName название компании
      * @param phoneNumber номер телефона
@@ -122,7 +128,7 @@ public class PopUp extends AbstractPage{
     }
 
     /**
-     * зарегестрировать клиента с указание имени, названия компании, должности, веб-сайта и номера телефона
+     * Зарегестрировать клиента с указание имени, названия компании, должности, веб-сайта и номера телефона
      * @param youName имя клиента
      * @param companyName название компании
      * @param phoneNumber номер телефона
@@ -136,7 +142,7 @@ public class PopUp extends AbstractPage{
     }
 
     /**
-     * регистрация тестера
+     * Регистрация тестера
      */
     public void registrationTester() {
         String email = OneOffEMailPage.getOneOffEmail();
@@ -154,7 +160,7 @@ public class PopUp extends AbstractPage{
     }
 
     /**
-     * вход на сайт
+     * Вход на сайт
      */
     public void logIn(String email, String password) {
         openPopUp();
@@ -165,6 +171,9 @@ public class PopUp extends AbstractPage{
         assert logout.isDisplayed(): "LogIn exception";
     }
 
+    /**
+     * Отправка заявки на восстановление пароля.
+     */
     public void recoveryPassword() {
         String email = OneOffEMailPage.getOneOffEmail();
         openPopUp();
@@ -179,6 +188,9 @@ public class PopUp extends AbstractPage{
         assert check.isDisplayed(): "Password recovery exception";
     }
 
+    /**
+     * Открыть условия передачи информации при регистрации клиента
+     */
     public void linkToInformation() {
         openPopUp();
 
@@ -197,6 +209,5 @@ public class PopUp extends AbstractPage{
         new WebDriverWait(driver, timeWait).withMessage("Link to information exception")
                 .until((d) -> checkPDF.isEnabled());
     }
-
 
 }

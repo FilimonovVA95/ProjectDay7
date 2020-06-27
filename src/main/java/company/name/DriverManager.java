@@ -11,12 +11,18 @@ import java.net.URL;
 import java.util.Properties;
 import java.util.concurrent.TimeUnit;
 
+/**
+ * Класс хранящий WebDriver. Реализует паттерн Singleton. Настройки Вебдрайвера подгружаются из файла конфигураций
+ */
 public class DriverManager {
     private static WebDriver driver;
 
-
     private DriverManager(){};
 
+    /**
+     * Возвращает вебдрайвер, указанный в документации. Реализует паттерн Singleton.
+     * @return возвращает Вебдрайвер. Всегда один и тот же.
+     */
     public static WebDriver getDriver() {
         if (driver != null) return driver;
 

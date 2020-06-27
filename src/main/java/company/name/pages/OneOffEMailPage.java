@@ -10,6 +10,9 @@ import java.awt.datatransfer.DataFlavor;
 import java.awt.datatransfer.UnsupportedFlavorException;
 import java.io.IOException;
 
+/**
+ * Страница одноразовой почты. Реализует только статичные методы.
+ */
 public class OneOffEMailPage extends AbstractPage{
 
     @FindBy(css = "[class='btn-rds icon-btn bg-theme click-to-copy copyIconGreenBtn']")
@@ -33,13 +36,20 @@ public class OneOffEMailPage extends AbstractPage{
     @FindBy(id = "click-to-delete")
     private static WebElement deleteButton;      //кнопка удаления текущего адреса
 
-
+    /**
+     * Поля сайта одноразовой почты, время ожидания появления письма, время ожидания проверок наличия элементов,
+     * вебдрайвер и ссылка на тестовый стенд
+     */
     private static String oneOffEMailSite = "https://temp-mail.org/ru/";
     private static int timeWaitEmail = 60;    //сколько секунд будем ждать появление письма в ящике
     private static int timeWait = 10;   //время ожидания при проверке
     private static WebDriver driver;
     private static String testStand;
 
+    /**
+     * Конструктор, считываем из файла конфигурации сайт тестового стенда и получает все веб-элементы
+     * @param driver принимает вебдрайвер, с которым мы работаем
+     */
     public OneOffEMailPage(WebDriver driver) {
         super(driver);
         this.testStand = super.testStand;;
@@ -47,8 +57,8 @@ public class OneOffEMailPage extends AbstractPage{
     }
 
     /**
-     * вернуть одноразовый email, перед этим проверив, что раньше эта почта не использовалась
-     * @return возвращает строку с новым email
+     * Обновляет одноразовую почту. Гарантирует что при последующих запросах
+     * будет выдана почта, до этого ни разу нигде не использованная
      */
     public static void updateOffEmail() {     //возвращает нам одноразовый ящик
         driver.get(oneOffEMailSite);
@@ -56,7 +66,7 @@ public class OneOffEMailPage extends AbstractPage{
     }
 
     /**
-     * возвращает email
+     * Возвращает одноразовый email
      * @return возвращает строку с email
      */
     public static String getOneOffEmail() {     //возвращает нам одноразовый ящик
@@ -79,8 +89,8 @@ public class OneOffEMailPage extends AbstractPage{
     }
 
     /**
-     * Ожидает прихода письма в течении минуты. Возвращает строку с паролем от текущего ящика.
-     * @return
+     * Ожидает прихода письма в течении минуты. Возвращает строку с паролем от текущего ящика
+     * @return возвращает строку с паролем
      */
     public static String getPassword() {    //возвращает пароль
         driver.get(oneOffEMailSite);
@@ -99,6 +109,10 @@ public class OneOffEMailPage extends AbstractPage{
         return stringWithPassword[1];
     }
 
+    /**
+     * Ожидает прихода письма восстановления пароля в течении минуты. Возвращает строку с паролем от текущего ящика
+     * @return возвращает строку с восстановленным паролем
+     */
     public static String getRecoveryPassword() {
         driver.get(oneOffEMailSite);
         refreshButton.click();

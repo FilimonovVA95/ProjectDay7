@@ -9,10 +9,10 @@ public class StartPage extends AbstractPage {
     @FindBy(id = "header-lk-button")   //кнопка открытия окна входа
     private WebElement loginButton;
 
-    
 
     /**
-     * Конструктор, считываем из файла конфигурации сайт тестового стенда и получаем все веб-элементы.
+     * Конструктор, считываем из файла конфигурации сайт тестового стенда и получает все веб-элементы
+     * @param driver принимает вебдрайвер, с которым мы работаем
      */
     public StartPage(WebDriver driver) {
         super(driver);
@@ -23,13 +23,11 @@ public class StartPage extends AbstractPage {
     private String testStand;
     private WebDriver driver;
 
-
     /**
      * открыть стартовую страницу
      */
     public void openStartPage() {
         driver.get(testStand);
     }
-
 
 }
