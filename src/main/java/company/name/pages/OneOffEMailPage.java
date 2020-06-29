@@ -1,5 +1,6 @@
 package company.name.pages;
 
+import company.name.DriverManager;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.FindBy;
@@ -45,6 +46,11 @@ public class OneOffEMailPage extends AbstractPage{
     private static int timeWait = 10;   //время ожидания при проверке
     private static WebDriver driver;
     private static String testStand;
+    private static OneOffEMailPage oneOffEMailPage;
+
+    static {
+        oneOffEMailPage = new OneOffEMailPage(DriverManager.getDriver());
+    }
 
     /**
      * Конструктор, считываем из файла конфигурации сайт тестового стенда и получает все веб-элементы

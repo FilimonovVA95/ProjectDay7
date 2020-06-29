@@ -48,4 +48,8 @@ public class DriverManager {
 
         return driver;
     }
+
+    public static void quit() {
+        driver.quit();
+    }
 }

@@ -3,6 +3,9 @@ package company.name;
 import company.name.pages.*;
 import org.junit.jupiter.api.Test;
 import org.openqa.selenium.WebDriver;
+import org.testng.annotations.AfterTest;
+
+import java.io.IOException;
 
 /**
  * Набор тестов для проверки работы авторизации и регистрации
@@ -14,10 +17,15 @@ public class LoginPageUserTests {
     /**
      * Набор используемых страниц
      */
-    LoginPage loginPage = new LoginPage(driver);
-    TesterPersonalAccountPage testerPersonalAccountPage = new TesterPersonalAccountPage(driver);
-    ClientPersonalAccountPage clientPersonalAccountPage = new ClientPersonalAccountPage(driver);
-    OneOffEMailPage oneOffEMailPage = new OneOffEMailPage(driver);
+    private LoginPage loginPage = new LoginPage(driver);
+    private TesterPersonalAccountPage testerPersonalAccountPage = new TesterPersonalAccountPage(driver);
+    private ClientPersonalAccountPage clientPersonalAccountPage = new ClientPersonalAccountPage(driver);
+
+
+    @Test
+    public void testEmail() throws IOException {
+        String s = OneOffMailPageThroughRequests.getNewEmail();
+    }
 
     @Test
     public void registrationAndLogInTester() {
@@ -62,6 +70,12 @@ public class LoginPageUserTests {
         String recoveryPassword = OneOffEMailPage.getRecoveryPassword();
         loginPage.logIn(email, recoveryPassword);
         testerPersonalAccountPage.logout();
+    }
+
+
+    @AfterTest
+    public static void quit() {
+        DriverManager.quit();
     }
 
 }
